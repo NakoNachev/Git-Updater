@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 import os
 import subprocess
-import sys
 import logging
-
+import time
 
 def run_command(command):
     if not isinstance(command, list):
@@ -12,12 +11,11 @@ def run_command(command):
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
     if process.stderr.decode('utf-8') == '':
-        print(process.stdout.decode('utf-8'))
-        return
+        return process
     raise Exception
 
 
-def check_git_repo_exists():
+def check_git_repo_exists() -> bool:
     process = subprocess.run(['git', 'status'],
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
@@ -26,29 +24,74 @@ def check_git_repo_exists():
     return True
 
 
-def get_dir_exists(path):
+def get_dir_exists(path) -> bool:
     return os.path.exists(path)
 
 
-def check_for_repo_and_pull(path):
+def check_for_repo_and_pull(path) -> None:
+    logger.info('Pulling from origin')
     if get_dir_exists(path) == True:
         os.chdir(path)
         if check_git_repo_exists() == True:
             try:
                 run_command(['git', 'pull'])
             except:
-                logging.error('Git pull failed for path ' + str(path))
+                logger.error('Git pull failed for path ' + str(path))
 
-def add_all_and_push():
-    pass
 
-def check_current_branch():
-    pass
+def add_all_and_push() -> None:
+    try:
+        run_command(['git', 'add', '.'])
+        run_command(
+            ['git', 'commit', '-m', generate_commit_message()])
+        run_command(['git', 'push'])
+    except:
+        logger.error('Adding all files failed')
+
+
+def generate_commit_message() -> str:
+    return '\"Automated commit from python updater ' + str(time.time()) + '\"'
+
+
+def get_current_branch() -> str:
+    """ Executes git status and returns the decoded branch from the stdout"""
+    try:
+        data = run_command(['git', 'status'])
+        return data.stdout.decode('utf-8')[10:data.stdout.decode('utf-8').find('\n')]
+    except:
+        logger.error('Check status failed')
+
+
+def branch_has_changes() -> bool:
+    if run_command(['git', 'status']).stdout.decode('utf-8').find('nothing to commit') == -1:
+        return True
+    return False
+
 
 def main():
+    global logger
+    logger = set_up_logger()
+    logger.info('Starting updater')
     with open('sources.txt', 'r') as f:
         data = f.readlines()
-        check_for_repo_and_pull(data[0])
+        for line in data:
+            logger.info('Reading target source ' + str(line) )
+            check_for_repo_and_pull(data[0])
+            if branch_has_changes() == True:
+                add_all_and_push()
+            else:
+                logger.info('No changes found, skipping pushing to origin')
+
+
+
+def set_up_logger():
+    logging.basicConfig(filename='output.log',
+                        filemode='a',
+                        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                        datefmt='%H:%M:%S',
+                        level=logging.DEBUG)
+
+    return logging.getLogger('updater')
 
 
 if __name__ == "__main__":
