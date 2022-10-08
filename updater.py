@@ -56,8 +56,8 @@ def generate_commit_message() -> str:
 def get_current_branch() -> str:
     """ Executes git status and returns the decoded branch from the stdout"""
     try:
-        data = run_command(['git', 'status'])
-        return data.stdout.decode('utf-8')[10:data.stdout.decode('utf-8').find('\n')]
+        data = run_command(['git', 'branch', '--show-current'])
+        return data.stdout.decode('utf-8')
     except:
         logger.error('Check status failed')
 
