@@ -3,6 +3,7 @@ import os
 import subprocess
 import logging
 import time
+import sys
 
 def run_command(command):
     if not isinstance(command, list):
@@ -71,16 +72,21 @@ def branch_has_changes() -> bool:
 def main():
     global logger
     logger = set_up_logger()
+    sources_file = 'sources.txt'
     logger.info('Starting updater')
-    with open('sources.txt', 'r') as f:
-        data = f.readlines()
-        for line in data:
-            logger.info('Reading target source ' + str(line) )
-            check_for_repo_and_pull(data[0])
-            if branch_has_changes() == True:
-                add_all_and_push()
-            else:
-                logger.info('No changes found, skipping pushing to origin')
+    try:
+        with open(sources_file, 'r') as f:
+            data = f.readlines()
+            for line in data:
+                logger.info('Reading target source ' + str(line) )
+                check_for_repo_and_pull(data[0])
+                if branch_has_changes() == True:
+                    add_all_and_push()
+                else:
+                    logger.info('No changes found, skipping pushing to origin')
+    except FileNotFoundError:
+        logger.error('Target file {} not found'.format(sources_file))
+        return sys.exit(1)
 
 
 
