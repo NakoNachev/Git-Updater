@@ -76,7 +76,7 @@ def main():
     logger.info('Starting updater')
     try:
         with open(sources_file, 'r') as f:
-            data = f.readlines()
+            data: list[str] = f.readlines()
             for line in data:
                 logger.info('Reading target source ' + str(line) )
                 check_for_repo_and_pull(data[0])
@@ -91,14 +91,16 @@ def main():
 
 
 def set_up_logger():
+    print('test')
     logging.basicConfig(filename='output.log',
                         filemode='a',
                         format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                         datefmt='%H:%M:%S',
                         level=logging.DEBUG)
-
+    print(logging.getLogger('updater').info)
     return logging.getLogger('updater')
 
-
 if __name__ == "__main__":
+    target_dir = r"C:\Users\nakon\Desktop\Docs\dev\git_updater"   # r in front of the string is for signalling raw string, a.k.a wont escape characters
+    os.chdir(target_dir)
     main()
