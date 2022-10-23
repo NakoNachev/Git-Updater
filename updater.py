@@ -91,16 +91,18 @@ def main():
 
 
 def set_up_logger():
-    print('test')
     logging.basicConfig(filename='output.log',
                         filemode='a',
                         format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                         datefmt='%H:%M:%S',
                         level=logging.DEBUG)
-    print(logging.getLogger('updater').info)
     return logging.getLogger('updater')
 
 if __name__ == "__main__":
     target_dir = r"C:\Users\nakon\Desktop\Docs\dev\git_updater"   # r in front of the string is for signalling raw string, a.k.a wont escape characters
-    os.chdir(target_dir)
+    try: 
+        os.chdir(target_dir)
+    except:
+        logging.error('Could not cd to target directory {}'.format(target_dir))
+        sys.exit(1)
     main()
