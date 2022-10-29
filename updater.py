@@ -88,7 +88,8 @@ def main():
         logger.error('Target file {} not found'.format(sources_file))
         return sys.exit(1)
 
-
+def check_for_uncommited_commits():
+    pass
 
 def set_up_logger():
     logging.basicConfig(filename='output.log',
