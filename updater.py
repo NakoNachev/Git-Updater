@@ -42,6 +42,7 @@ def check_for_repo_and_pull(path) -> None:
 
 def add_all_and_push() -> None:
     try:
+        print(os.getcwd())
         run_command(['git', 'add', '.'])
         run_command(
             ['git', 'commit', '-m', generate_commit_message()])
@@ -81,7 +82,6 @@ def main():
                 logger.info('Reading target source ' + str(line) )
                 check_for_repo_and_pull(data[0])
                 if branch_has_changes() == True:
-                    print("has changes")
                     add_all_and_push()
                 else:
                     logger.info('No changes found, skipping pushing to origin')
