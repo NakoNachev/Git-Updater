@@ -81,6 +81,7 @@ def main():
                 logger.info('Reading target source ' + str(line) )
                 check_for_repo_and_pull(data[0])
                 if branch_has_changes() == True:
+                    print("has changes")
                     add_all_and_push()
                 else:
                     logger.info('No changes found, skipping pushing to origin')
